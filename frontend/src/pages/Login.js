@@ -14,12 +14,29 @@ function Login() {
     e.preventDefault();
     setError('');
     setLoading(true);
+    
+    const params = new URLSearchParams();
+    params.append('username', email); // Using email as username as per the curl example
+    params.append('password', password);
+    params.append('grant_type', '');
+    params.append('scope', '');
+    params.append('client_id', '');
+    params.append('client_secret', '');
+    
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/login', { email, password });
-      localStorage.setItem('token', res.data.token);
-      navigate('/');
+      const res = await axios.post('http://127.0.0.1:8000/login', params, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'accept': 'application/json'
+        }
+      });
+      
+      if (res.data.access_token) {
+        localStorage.setItem('token', res.data.access_token);
+        navigate('/');
+      }
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+      setError(err.response?.data?.detail || 'Login failed');
     } finally {
       setLoading(false);
     }
